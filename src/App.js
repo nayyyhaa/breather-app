@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function App() {
   let [time, setTime] = useState();
-  let [date, setDates] = useState();
+  let [date, setDate] = useState();
 
   let todayTime = () => {
     setInterval(updateTimer,1000);
@@ -12,7 +12,7 @@ export default function App() {
     let currDate = today.toLocaleDateString();
     let currtime =
       today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    setDates(currDate);
+    setDate(currDate);
     setTime(currtime);
   };
   useEffect(todayTime,[]);
