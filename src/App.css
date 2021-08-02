@@ -25,6 +25,15 @@ header {
   align-items: center;
 }
 
+.app_title {
+  text-align: left;
+}
+
+.app_title h1{
+  color: purple;
+  text-shadow: 1px 0 2px black;
+}
+
 button {
   color: white;
   background: none;
@@ -95,11 +104,11 @@ button:hover {
   width: 2.5rem;
 }
 
-.sound-content button:nth-child(2) {
+.sound-content button:nth-child(3) {
   background: rgb(81, 170, 243);
 }
 
-.sound-content button:nth-child(3) {
+.sound-content button:nth-child(4) {
   background: rgb(255, 216, 144);
 }
 

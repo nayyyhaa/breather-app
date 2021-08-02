@@ -10,12 +10,13 @@ import beachAudio from './assets/sounds/beach.mp3';
 export default function App() {
   let [time, setTime] = useState();
   let [date, setDate] = useState();
-  let [duration, setDuration] = useState(0);
+  let [duration, setDuration] = useState(120);
   let [timer, setTimer] = useState(0);
   let [seconds, setSeconds] = useState('00');
   let [minutes, setMinutes] = useState(0);
   let [sound, setSound] = useState(new Audio(rainAudio));
   let [playing, setPlaying] = useState(false);
+  let [track, setTrack] = useState("Rainy!");
 
   let todayTime = () => {
     setInterval(updateTodaysTime,1000);
@@ -43,7 +44,6 @@ export default function App() {
         Array.from(document.querySelectorAll('.sound-btn')).map( btn => btn.classList.remove('-disabled'));
         document.querySelector('.play').src = playImg;
       };
-      
     },
     [playing]
   );
@@ -55,17 +55,28 @@ export default function App() {
     };
   }, []);
 
-  let updateTimer = (isNewTimer) => {
-    if(isNewTimer) setTimer(0);
-    else setTimer(prevTimer => timer = prevTimer + 1)
+  useEffect(() => {
+    if(duration == timer) {
+      setPlaying(false);
+      resetTimer();
+    }
+  },[timer])
+
+  function resetTimer() {
+      setTimer(0);
+      setSeconds('00');
+      setMinutes(0);
+  }
+
+  let updateTimer = () => {
+    setTimer(prevTimer => timer = prevTimer + 1)
     setSeconds(Math.floor(timer % 60));
     setMinutes(Math.floor(timer / 60));
-    console.log(seconds)
   }
 
   useEffect(() => {
     let updateInterval;
-    if(playing) { updateInterval = setInterval(() => updateTimer(false),1000);}
+    if(playing) { updateInterval = setInterval(() => updateTimer(),1000);}
     return () => clearInterval(updateInterval);
   }, [playing]);
 
@@ -74,20 +85,27 @@ export default function App() {
   return (
     <div className="App">
       <header>
-        <h1>Meditation App</h1>
+        <div className="app_title">
+          <h1>Breather App!</h1>
+          <h5>your meditation buddy</h5>
+        </div>
         <h3>Today: {date}, {time}</h3>
       </header>
       <main className="App-content">
         <div className="duration-content">
           <h2>Duration</h2>
+          <h4 className="selected_duration">Selected Duration: {duration / 60} minutes.</h4>
           <button onClick={() => {
-            setDuration(2)
+            setDuration(120);
+            resetTimer();
           }}>2 minutes</button>
           <button onClick={() => {
-            setDuration(5)
+            setDuration(300);
+            resetTimer();
           }}>5 minutes</button>
           <button onClick={() => {
-            setDuration(10)
+            setDuration(600);
+            resetTimer();
           }}>10 minutes</button>
         </div>
         <div className="timer-content">
@@ -107,15 +125,18 @@ export default function App() {
         </div>
         <div className="sound-content">
           <h2>Tracks</h2>
+          <h4 className="selected_track">Selected Track: {track}</h4>
           <button className="sound-btn" onClick={() => {
             setSound(prevAudio => prevAudio = new Audio(rainAudio));
-            updateTimer(true);
+            resetTimer();
+            setTrack("Rainy!");
           }}>
             <img src={rainImg} alt="rain" className="rain-img"></img>
           </button>
           <button className="sound-btn" onClick={() => {
             setSound(prevAudio => prevAudio = new Audio(beachAudio));
-            updateTimer(true);
+            resetTimer();
+            setTrack("Beach Vibes!");
           }}>
             <img src={beachImg} alt="beach" className="beach-img"></img>
           </button>
