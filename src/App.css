@@ -81,7 +81,7 @@ button:hover {
   height: 50%;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(-90deg);
   pointer-events: none;
 }
 
@@ -115,6 +115,10 @@ button:hover {
 .-disabled {
   pointer-events: none;
   background: gray !important;
+}
+
+.enable {
+  background: green !important;
 }
 
 /* media queries */

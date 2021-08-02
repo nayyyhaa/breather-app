@@ -13,7 +13,7 @@ export default function App() {
   let [duration, setDuration] = useState(120);
   let [timer, setTimer] = useState(0);
   let [seconds, setSeconds] = useState('00');
-  let [minutes, setMinutes] = useState(0);
+  let [minutes, setMinutes] = useState(2);
   let [sound, setSound] = useState(new Audio(rainAudio));
   let [playing, setPlaying] = useState(false);
   let [track, setTrack] = useState("Rainy!");
@@ -37,11 +37,13 @@ export default function App() {
       if(playing) { 
         sound.play();
         Array.from(document.querySelectorAll('.sound-btn')).map( btn => btn.classList.add('-disabled'));
+        Array.from(document.querySelectorAll('.duration-btn')).map( btn => btn.classList.add('-disabled'));
         document.querySelector('.play').src = pauseImg;
       }
       else {
         sound.pause();
         Array.from(document.querySelectorAll('.sound-btn')).map( btn => btn.classList.remove('-disabled'));
+        Array.from(document.querySelectorAll('.duration-btn')).map( btn => btn.classList.remove('-disabled'));
         document.querySelector('.play').src = playImg;
       };
     },
@@ -62,16 +64,31 @@ export default function App() {
     }
   },[timer])
 
-  function resetTimer() {
+  let resetTimer = () => {
       setTimer(0);
       setSeconds('00');
       setMinutes(0);
+      sound.currentTime = 0;
+      updateProgressBar();
+  }
+
+  let updateProgressBar = () => {
+    const outline = document.querySelector(".moving-outline circle");
+    const outlineLength = outline.getTotalLength();
+    outline.style.strokeDashoffset = outlineLength;
+    outline.style.strokeDasharray = outlineLength;
+    let currentTime = sound.currentTime;
+    let progress = outlineLength - (currentTime / duration) * outlineLength;
+    outline.style.strokeDashoffset = progress;
   }
 
   let updateTimer = () => {
     setTimer(prevTimer => timer = prevTimer + 1)
-    setSeconds(Math.floor(timer % 60));
-    setMinutes(Math.floor(timer / 60));
+    let currentTime = sound.currentTime;
+    updateProgressBar();
+    let elapsed = duration - currentTime;
+    setSeconds(Math.floor(elapsed % 60));
+    setMinutes(Math.floor(elapsed / 60));
   }
 
   useEffect(() => {
@@ -95,15 +112,15 @@ export default function App() {
         <div className="duration-content">
           <h2>Duration</h2>
           <h4 className="selected_duration">Selected Duration: {duration / 60} minutes.</h4>
-          <button onClick={() => {
+          <button className="duration-btn" onClick={(e) => {
             setDuration(120);
             resetTimer();
           }}>2 minutes</button>
-          <button onClick={() => {
+          <button className="duration-btn" onClick={(e) => {
             setDuration(300);
             resetTimer();
           }}>5 minutes</button>
-          <button onClick={() => {
+          <button className="duration-btn" onClick={(e) => {
             setDuration(600);
             resetTimer();
           }}>10 minutes</button>
