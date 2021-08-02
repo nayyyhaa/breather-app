@@ -30,8 +30,9 @@ button {
   background: none;
   width: 30%;
   border: 2px solid white;
-  padding: 1rem;
-  border-radius: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  margin: 0.5rem;
   cursor: pointer;
   font-size: 20px;
   transition: all 0.1s ease-in;
@@ -81,13 +82,17 @@ button:hover {
   color: white;
 }
 
+.play {
+  cursor: pointer;
+}
+
 /*sound*/
 .sound-content {
   background: lightblue;
 }
 
 .sound-content button img {
-  height: 100%;
+  width: 2.5rem;
 }
 
 .sound-content button:nth-child(2) {
@@ -96,6 +101,28 @@ button:hover {
 
 .sound-content button:nth-child(3) {
   background: rgb(255, 216, 144);
+}
+
+.-disabled {
+  pointer-events: none;
+  background: gray !important;
+}
+
+/* media queries */
+
+@media screen and (max-width: 900px) {
+  header {
+    flex-direction: column;
+  }
+  .App-content {
+    flex-direction: column;
+    align-items: initial !important;
+  }
+  .duration-content,
+  .timer-content,
+  .sound-content {
+    min-height: 50vh;
+  }
 }
 
 
