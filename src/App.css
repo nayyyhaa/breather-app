@@ -95,6 +95,10 @@ button:hover {
   cursor: pointer;
 }
 
+.timer-content svg circle {
+  transition: all 0.2s ease-in-out;
+}
+
 /*sound*/
 .sound-content {
   background: lightblue;

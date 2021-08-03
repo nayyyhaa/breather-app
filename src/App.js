@@ -58,16 +58,16 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if(duration == timer) {
+    if(duration === timer) {
       setPlaying(false);
-      resetTimer();
+      resetTimer(0);
     }
   },[timer])
 
-  let resetTimer = () => {
+  let resetTimer = (time) => {
       setTimer(0);
       setSeconds('00');
-      setMinutes(0);
+      setMinutes(Math.floor(time / 60));
       sound.currentTime = 0;
       updateProgressBar();
   }
@@ -97,7 +97,10 @@ export default function App() {
     return () => clearInterval(updateInterval);
   }, [playing]);
 
-  useEffect(todayTime,[]);
+  useEffect(() => {
+    todayTime();
+    updateProgressBar();
+  },[]);
 
   return (
     <div className="App">
@@ -114,15 +117,15 @@ export default function App() {
           <h4 className="selected_duration">Selected Duration: {duration / 60} minutes.</h4>
           <button className="duration-btn" onClick={(e) => {
             setDuration(120);
-            resetTimer();
+            resetTimer(120);
           }}>2 minutes</button>
           <button className="duration-btn" onClick={(e) => {
             setDuration(300);
-            resetTimer();
+            resetTimer(300);
           }}>5 minutes</button>
           <button className="duration-btn" onClick={(e) => {
             setDuration(600);
-            resetTimer();
+            resetTimer(600);
           }}>10 minutes</button>
         </div>
         <div className="timer-content">
@@ -145,14 +148,14 @@ export default function App() {
           <h4 className="selected_track">Selected Track: {track}</h4>
           <button className="sound-btn" onClick={() => {
             setSound(prevAudio => prevAudio = new Audio(rainAudio));
-            resetTimer();
+            resetTimer(duration);
             setTrack("Rainy!");
           }}>
             <img src={rainImg} alt="rain" className="rain-img"></img>
           </button>
           <button className="sound-btn" onClick={() => {
             setSound(prevAudio => prevAudio = new Audio(beachAudio));
-            resetTimer();
+            resetTimer(duration);
             setTrack("Beach Vibes!");
           }}>
             <img src={beachImg} alt="beach" className="beach-img"></img>
