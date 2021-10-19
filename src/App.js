@@ -1,26 +1,35 @@
-import { useEffect, useState } from "react";
-import './App.css';
-import playImg from './assets/svg/play.svg';
-import pauseImg from './assets/svg/pause.svg';
-import rainImg from './assets/svg/rain.svg';
-import beachImg from './assets/svg/beach.svg';
-import rainAudio from './assets/sounds/rain.mp3';
-import beachAudio from './assets/sounds/beach.mp3';
+import React, { useEffect, useState, useRef } from "react";
+import "./App.css";
+import playImg from "./assets/svg/play.svg";
+import pauseImg from "./assets/svg/pause.svg";
+import rainImg from "./assets/svg/rain.svg";
+import beachImg from "./assets/svg/beach.svg";
+import rainAudio from "./assets/sounds/rain.mp3";
+import beachAudio from "./assets/sounds/beach.mp3";
 
 export default function App() {
   let [time, setTime] = useState();
   let [date, setDate] = useState();
   let [duration, setDuration] = useState(120);
-  let [timer, setTimer] = useState(0);
-  let [seconds, setSeconds] = useState('00');
-  let [minutes, setMinutes] = useState(2);
-  let [sound, setSound] = useState(new Audio(rainAudio));
+  let [sound, setSound] = useState(rainAudio);
   let [playing, setPlaying] = useState(false);
   let [track, setTrack] = useState("Rainy!");
+  let audioRef = useRef(null);
 
   let todayTime = () => {
-    setInterval(updateTodaysTime,1000);
-  }
+    setInterval(updateTodaysTime, 1000);
+  };
+
+  const playPauseSongHandler = () => {
+    if (playing) {
+      audioRef.current.pause();
+      document.querySelector(".play").src = playImg;
+    } else {
+      audioRef.current.play();
+      document.querySelector(".play").src = pauseImg;
+    }
+    setPlaying(!playing);
+  };
 
   let updateTodaysTime = () => {
     let today = new Date();
@@ -31,76 +40,42 @@ export default function App() {
     setTime(currtime);
   };
 
-  const toggle = () => setPlaying(!playing);
+  const getTimeFormat = (time) => {
+    if (!time) return "0:00";
+    return (
+      Math.floor(time / 60) + ":" + ("0" + Math.floor(time % 60)).slice(-2)
+    );
+  };
 
-   useEffect(() => {
-      if(playing) { 
-        sound.play();
-        Array.from(document.querySelectorAll('.sound-btn')).map( btn => btn.classList.add('-disabled'));
-        Array.from(document.querySelectorAll('.duration-btn')).map( btn => btn.classList.add('-disabled'));
-        document.querySelector('.play').src = pauseImg;
-      }
-      else {
-        sound.pause();
-        Array.from(document.querySelectorAll('.sound-btn')).map( btn => btn.classList.remove('-disabled'));
-        Array.from(document.querySelectorAll('.duration-btn')).map( btn => btn.classList.remove('-disabled'));
-        document.querySelector('.play').src = playImg;
-      };
-    },
-    [playing]
-  );
-
-  useEffect(() => {
-    sound.addEventListener('ended', () => setPlaying(false));
-    return () => {
-    sound.removeEventListener('ended', () => setPlaying(false));
-    };
-  }, []);
-
-  useEffect(() => {
-    if(duration === timer) {
-      setPlaying(false);
-      resetTimer(0);
-    }
-  },[timer])
-
-  let resetTimer = (time) => {
-      setTimer(0);
-      setSeconds('00');
-      setMinutes(Math.floor(time / 60));
-      sound.currentTime = 0;
-      updateProgressBar();
-  }
+  let resetTimer = () => {
+    setPlaying(false);
+    audioRef.current.currentTime = 0;
+    updateProgressBar();
+  };
 
   let updateProgressBar = () => {
     const outline = document.querySelector(".moving-outline circle");
     const outlineLength = outline.getTotalLength();
     outline.style.strokeDashoffset = outlineLength;
     outline.style.strokeDasharray = outlineLength;
-    let currentTime = sound.currentTime;
+    let currentTime = audioRef.current.currentTime;
     let progress = outlineLength - (currentTime / duration) * outlineLength;
     outline.style.strokeDashoffset = progress;
-  }
+  };
 
-  let updateTimer = () => {
-    setTimer(prevTimer => timer = prevTimer + 1)
-    let currentTime = sound.currentTime;
-    updateProgressBar();
-    let elapsed = duration - currentTime;
-    setSeconds(Math.floor(elapsed % 60));
-    setMinutes(Math.floor(elapsed / 60));
-  }
+  const setSoundHandler = async (song) => {
+    await setSound(song);
+    resetTimer();
+  };
 
   useEffect(() => {
-    let updateInterval;
-    if(playing) { updateInterval = setInterval(() => updateTimer(),1000);}
-    return () => clearInterval(updateInterval);
-  }, [playing]);
-
-  useEffect(() => {
+    if (duration === Math.ceil(audioRef.current.currentTime)) {
+      resetTimer();
+      playPauseSongHandler();
+    }
     todayTime();
     updateProgressBar();
-  },[]);
+  });
 
   return (
     <div className="App">
@@ -109,60 +84,121 @@ export default function App() {
           <h1>Breather App!</h1>
           <h5>your meditation buddy</h5>
         </div>
-        <h3>Today: {date}, {time}</h3>
+        <h3>
+          Today: {date}, {time}
+        </h3>
       </header>
       <main className="App-content">
         <div className="duration-content">
           <h2>Duration</h2>
-          <h4 className="selected_duration">Selected Duration: {duration / 60} minutes.</h4>
-          <button className="duration-btn" onClick={(e) => {
-            setDuration(120);
-            resetTimer(120);
-          }}>2 minutes</button>
-          <button className="duration-btn" onClick={(e) => {
-            setDuration(300);
-            resetTimer(300);
-          }}>5 minutes</button>
-          <button className="duration-btn" onClick={(e) => {
-            setDuration(600);
-            resetTimer(600);
-          }}>10 minutes</button>
+          <h4 className="selected_duration">
+            Selected Duration: {duration / 60} minutes.
+          </h4>
+          <button
+            className="duration-btn"
+            onClick={(e) => {
+              setDuration(120);
+              resetTimer();
+            }}
+          >
+            2 minutes
+          </button>
+          <button
+            className="duration-btn"
+            onClick={(e) => {
+              setDuration(300);
+              resetTimer();
+            }}
+          >
+            5 minutes
+          </button>
+          <button
+            className="duration-btn"
+            onClick={(e) => {
+              setDuration(600);
+              resetTimer();
+            }}
+          >
+            10 minutes
+          </button>
         </div>
         <div className="timer-content">
-          <audio className="audio">
-            <source src="./assets/sounds/rain.mp3"></source>
-          </audio>
-          <img src={playImg} alt="play" className="play" onClick={toggle}></img>
-          <svg className="track-outline" width="453" height="453" viewBox="0 0 453 453" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="226.5" cy="226.5" r="216.5" stroke="white" strokeWidth="20"/>
+          <img
+            src={playImg}
+            alt="play"
+            className="play"
+            onClick={playPauseSongHandler}
+          ></img>
+          <svg
+            className="track-outline"
+            width="453"
+            height="453"
+            viewBox="0 0 453 453"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="226.5"
+              cy="226.5"
+              r="216.5"
+              stroke="white"
+              strokeWidth="20"
+            />
           </svg>
 
-          <svg className="moving-outline" width="453" height="453" viewBox="0 0 453 453" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="226.5" cy="226.5" r="216.5" stroke="#018EBA" strokeWidth="20"/>
+          <svg
+            className="moving-outline"
+            width="453"
+            height="453"
+            viewBox="0 0 453 453"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              cx="226.5"
+              cy="226.5"
+              r="216.5"
+              stroke="#018EBA"
+              strokeWidth="20"
+            />
           </svg>
 
-          <h1 className="timer">{minutes}:{(seconds<10 && seconds>0)? '0'+seconds: seconds}</h1>
+          <h1 className="timer">
+            {audioRef.current
+              ? getTimeFormat(duration - audioRef.current.currentTime)
+              : "0:00"}
+          </h1>
         </div>
         <div className="sound-content">
           <h2>Tracks</h2>
           <h4 className="selected_track">Selected Track: {track}</h4>
-          <button className="sound-btn" onClick={() => {
-            setSound(prevAudio => prevAudio = new Audio(rainAudio));
-            resetTimer(duration);
-            setTrack("Rainy!");
-          }}>
+          <button
+            className="sound-btn"
+            onClick={() => {
+              setSoundHandler(rainAudio);
+              setTrack("Rainy!");
+            }}
+          >
             <img src={rainImg} alt="rain" className="rain-img"></img>
           </button>
-          <button className="sound-btn" onClick={() => {
-            setSound(prevAudio => prevAudio = new Audio(beachAudio));
-            resetTimer(duration);
-            setTrack("Beach Vibes!");
-          }}>
+          <button
+            className="sound-btn"
+            onClick={() => {
+              setSoundHandler(beachAudio);
+              setTrack("Beach Vibes!");
+            }}
+          >
             <img src={beachImg} alt="beach" className="beach-img"></img>
           </button>
         </div>
       </main>
+      <audio
+        ref={audioRef}
+        className="audio"
+        onEnded={resetTimer}
+        onTimeUpdate={updateProgressBar}
+        src={sound}
+      ></audio>
     </div>
   );
 }
-          
